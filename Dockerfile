@@ -1,14 +1,19 @@
-# Use Amazon Corretto 21 base image
-FROM amazoncorretto:21
+# Stage 1: Build with Maven
+FROM maven:3.9.3-amazoncorretto-21 AS build
 
-# Set working directory inside container
+WORKDIR /app
+COPY pom.xml .
+COPY src ./src
+
+RUN mvn clean package -DskipTests
+
+# Stage 2: Run the jar
+FROM amazoncorretto:21-jdk-slim
+
 WORKDIR /app
 
-# Copy the built Spring Boot jar to container
-COPY target/*.jar app.jar
+COPY --from=build /app/target/*.jar app.jar
 
-# Expose port used by Spring Boot (default 8080)
 EXPOSE 8080
 
-# Run the application
 ENTRYPOINT ["java", "-jar", "app.jar"]
