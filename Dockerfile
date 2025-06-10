@@ -1,28 +1,21 @@
-# Stage 1: Build the application using Maven and Eclipse Temurin (OpenJDK 21)
-FROM maven:3.9.3-eclipse-temurin-21 AS build
+# Stage 1: Build with Maven + OpenJDK 21 (Temurin)
+:contentReference[oaicite:1]{index=1}
 
 WORKDIR /app
 
-# Only copy files needed for dependency resolution first for caching
-COPY pom.xml . 
-COPY .mvn .mvn
-COPY mvnw .
-RUN ./mvnw dependency:go-offline
+# Copy POM and download dependencies in advance for layer caching
+:contentReference[oaicite:2]{index=2}
+:contentReference[oaicite:3]{index=3}
 
-# Now copy source code and package the app
-COPY src ./src
-RUN ./mvnw clean package -DskipTests
+# Copy sources and package the jar
+:contentReference[oaicite:4]{index=4}
+:contentReference[oaicite:5]{index=5}
 
-# Stage 2: Use lightweight JDK runtime
-FROM eclipse-temurin:21-jdk
+# Stage 2: Run the app with lightweight JRE
+:contentReference[oaicite:6]{index=6}
 
 WORKDIR /app
+:contentReference[oaicite:7]{index=7}
 
-# Copy the jar from the build stage
-COPY --from=build /app/target/*.jar app.jar
-
-# Tell Render which port to expose
 EXPOSE 8080
-
-# Run the Spring Boot app
-ENTRYPOINT ["java", "-jar", "app.jar"]
+:contentReference[oaicite:8]{index=8}
