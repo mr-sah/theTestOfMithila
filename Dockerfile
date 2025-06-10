@@ -1,21 +1,13 @@
-# Stage 1: Build with Maven + OpenJDK 21 (Temurin)
-:contentReference[oaicite:1]{index=1}
+    # Stage 1: Build Stage
+    FROM maven:3.9.8-eclipse-temurin-21 AS builder
+    WORKDIR /app
+    COPY pom.xml .
+    COPY src ./src
+    RUN mvn clean install -DskipTests
 
-WORKDIR /app
-
-# Copy POM and download dependencies in advance for layer caching
-:contentReference[oaicite:2]{index=2}
-:contentReference[oaicite:3]{index=3}
-
-# Copy sources and package the jar
-:contentReference[oaicite:4]{index=4}
-:contentReference[oaicite:5]{index=5}
-
-# Stage 2: Run the app with lightweight JRE
-:contentReference[oaicite:6]{index=6}
-
-WORKDIR /app
-:contentReference[oaicite:7]{index=7}
-
-EXPOSE 8080
-:contentReference[oaicite:8]{index=8}
+    # Stage 2: Runtime Stage
+    FROM eclipse-temurin:21-jre-jammy
+    WORKDIR /app
+    COPY --from=builder /app/target/*.jar app.jar
+    EXPOSE 8080
+    ENTRYPOINT ["java", "-jar", "app.jar"]
